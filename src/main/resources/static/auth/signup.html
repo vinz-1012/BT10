@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Tài Khoản - JWT Spring Boot 3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.75);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 20%, #1e1b4b, #0f172a);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 36px 32px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .header .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin-bottom: 7px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: rgba(15, 23, 42, 0.65);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        button:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .footer-link a {
+            color: #818cf8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: #a5b4fc;
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .alert.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .alert.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card">
+        <div class="header">
+            <span class="badge">SPRING DATA JPA + SQL SERVER</span>
+            <h1>Đăng Ký</h1>
+            <p>Tạo tài khoản người dùng mới</p>
+        </div>
+
+        <div id="alertBox" class="alert"></div>
+
+        <form id="signupForm" onsubmit="handleSignup(event)">
+            <div class="form-group">
+                <label for="fullName">Họ và tên</label>
+                <input type="text" id="fullName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Địa chỉ Email (Username)</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" required>
+            </div>
+
+            <button type="submit" id="btnSubmit">Đăng Ký Tài Khoản</button>
+        </form>
+
+        <div class="footer-link">
+            Đã có tài khoản? <a href="/auth/login">Đăng nhập</a>
+        </div>
+    </div>
+
+    <script>
+        async function handleSignup(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSubmit');
+            const alertBox = document.getElementById('alertBox');
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            btn.disabled = true;
+            btn.textContent = 'Đang đăng ký...';
+            alertBox.className = 'alert';
+            alertBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullName, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.id) {
+                    alertBox.className = 'alert success';
+                    alertBox.textContent = 'Đăng ký tài khoản thành công! Đang chuyển đến trang đăng nhập...';
+                    alertBox.style.display = 'block';
+
+                    setTimeout(() => {
+                        window.location.href = '/auth/login';
+                    }, 1200);
+                } else {
+                    alertBox.className = 'alert error';
+                    alertBox.textContent = data.detail || data.access_denied_reason || 'Đăng ký thất bại. Email có thể đã tồn tại!';
+                    alertBox.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Đăng Ký Tài Khoản';
+                }
+            } catch (error) {
+                alertBox.className = 'alert error';
+                alertBox.textContent = 'Lỗi kết nối tới máy chủ!';
+                alertBox.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Đăng Ký Tài Khoản';
+            }
+        }
+    </script>
+</body>
+</html>

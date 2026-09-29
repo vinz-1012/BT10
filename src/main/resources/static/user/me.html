@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin Cá Nhân - JWT Spring Boot 3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.75);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 10%, #1e1b4b, #0f172a);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.15rem;
+            background: linear-gradient(135deg, #818cf8, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-nav {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-users {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-users:hover {
+            background: rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.35);
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 36px 32px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .profile-title h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .profile-title .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .info-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            word-break: break-all;
+        }
+
+        .token-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .token-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .token-content {
+            font-family: monospace;
+            font-size: 0.82rem;
+            color: #38bdf8;
+            word-break: break-all;
+            background: #090d16;
+            padding: 12px;
+            border-radius: 8px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .btn-copy {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-brand">JWT Spring Boot 3</div>
+        <div class="nav-links">
+            <a href="/user" class="btn-nav btn-users">Tất Cả Users (/user)</a>
+            <button onclick="handleLogout()" class="btn-nav btn-logout">Đăng Xuất</button>
+        </div>
+    </div>
+
+    <div class="profile-card" id="profileContainer">
+        <div class="loading" id="loadingText">Đang xác thực và tải thông tin từ API /users/me...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadUserProfile);
+
+        async function loadUserProfile() {
+            const container = document.getElementById('profileContainer');
+            const token = localStorage.getItem('jwtToken');
+
+            if (!token) {
+                renderUnauthorized('Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/users/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    renderProfile(user, token);
+                } else {
+                    const err = await response.json();
+                    renderUnauthorized(err.detail || err.access_denied_reason || 'Token không hợp lệ hoặc đã hết hạn!');
+                }
+            } catch (error) {
+                renderUnauthorized('Không thể kết nối đến máy chủ API: ' + error.message);
+            }
+        }
+
+        function renderProfile(user, token) {
+            const firstLetter = (user.fullName || user.email || 'U').charAt(0).toUpperCase();
+            const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleString('vi-VN') : 'N/A';
+            const updatedAt = user.updatedAt ? new Date(user.updatedAt).toLocaleString('vi-VN') : 'N/A';
+
+            document.getElementById('profileContainer').innerHTML = `
+                <div class="profile-header">
+                    <div class="avatar">${firstLetter}</div>
+                    <div class="profile-title">
+                        <h2>${escapeHtml(user.fullName || 'Người dùng')}</h2>
+                        <span class="badge">ĐÃ XÁC THỰC (AUTHENTICATED)</span>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">User ID (Khóa chính)</div>
+                        <div class="info-value">#${user.id}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Email (Username)</div>
+                        <div class="info-value">${escapeHtml(user.email)}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Ngày tạo (Created At)</div>
+                        <div class="info-value">${createdAt}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Cập nhật lần cuối</div>
+                        <div class="info-value">${updatedAt}</div>
+                    </div>
+                </div>
+
+                <div class="token-box">
+                    <div class="token-header">
+                        <div class="info-label">Bearer JWT Token hiện tại:</div>
+                        <button class="btn-copy" onclick="copyToken()">Sao chép Token</button>
+                    </div>
+                    <div class="token-content" id="jwtTokenDisplay">${escapeHtml(token)}</div>
+                </div>
+            `;
+        }
+
+        function renderUnauthorized(message) {
+            document.getElementById('profileContainer').innerHTML = `
+                <div class="alert-error">
+                    <h3 style="margin-bottom: 8px;">Truy Cập Bị Từ Chối</h3>
+                    <p style="margin-bottom: 20px;">${escapeHtml(message)}</p>
+                    <a href="/auth/login" class="btn-nav btn-users" style="padding: 10px 24px; text-decoration: none;">Đăng Nhập Lại</a>
+                </div>
+            `;
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('expiresIn');
+            window.location.href = '/auth/login';
+        }
+
+        function copyToken() {
+            const tokenText = document.getElementById('jwtTokenDisplay').textContent;
+            navigator.clipboard.writeText(tokenText).then(() => {
+                alert('Đã sao chép JWT Token vào clipboard!');
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
