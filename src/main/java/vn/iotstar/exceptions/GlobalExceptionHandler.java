@@ -1,14 +1,16 @@
 package vn.iotstar.exceptions;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.security.SignatureException;
+import com.nimbusds.jose.JOSEException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.text.ParseException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -16,49 +18,55 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ProblemDetail handleBadCredentialsException(BadCredentialsException exception) {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(401), exception.getMessage());
-        errorDetail.setProperty("access_denied_reason", "Authentication Failure: Username or password is incorrect");
+        errorDetail.setProperty("access_denied_reason", "Authentication Failure: Email hoặc mật khẩu không chính xác");
         return errorDetail;
     }
 
     @ExceptionHandler(AccountStatusException.class)
     public ProblemDetail handleAccountStatusException(AccountStatusException exception) {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
-        errorDetail.setProperty("access_denied_reason", "The account is locked, disabled, or expired");
+        errorDetail.setProperty("access_denied_reason", "Tài khoản bị khóa, bị vô hiệu hóa hoặc đã hết hạn");
         return errorDetail;
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDeniedException(AccessDeniedException exception) {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
-        errorDetail.setProperty("access_denied_reason", "You are not authorized to access this resource");
+        errorDetail.setProperty("access_denied_reason", "Bạn không có quyền truy cập vào tài nguyên này");
         return errorDetail;
     }
 
-    @ExceptionHandler(SignatureException.class)
-    public ProblemDetail handleSignatureException(SignatureException exception) {
+    /**
+     * Bắt lỗi khi token sai cấu trúc hoặc không thể phân tích cú pháp bằng Nimbus SignedJWT.parse()
+     */
+    @ExceptionHandler(ParseException.class)
+    public ProblemDetail handleParseException(ParseException exception) {
+        ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(401), exception.getMessage());
+        errorDetail.setProperty("access_denied_reason", "Token sai định dạng hoặc không hợp lệ (Nimbus ParseException)");
+        return errorDetail;
+    }
+
+    /**
+     * Bắt lỗi xử lý mã hóa hoặc xác thực chữ ký của Nimbus JOSE
+     */
+    @ExceptionHandler(JOSEException.class)
+    public ProblemDetail handleJOSEException(JOSEException exception) {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
-        errorDetail.setProperty("access_denied_reason", "JWT Signature is invalid");
+        errorDetail.setProperty("access_denied_reason", "Lỗi xử lý chữ ký hoặc giải mã token (Nimbus JOSEException)");
         return errorDetail;
     }
 
-    @ExceptionHandler(ExpiredJwtException.class)
-    public ProblemDetail handleExpiredJwtException(ExpiredJwtException exception) {
-        ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
-        errorDetail.setProperty("access_denied_reason", "JWT token has expired");
-        return errorDetail;
-    }
-
-    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
-    public ProblemDetail handleMethodNotSupported(org.springframework.web.HttpRequestMethodNotSupportedException exception) {
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ProblemDetail handleMethodNotSupported(HttpRequestMethodNotSupportedException exception) {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(405), exception.getMessage());
-        errorDetail.setProperty("access_denied_reason", "HTTP method is not supported for this endpoint");
+        errorDetail.setProperty("access_denied_reason", "Phương thức HTTP không được hỗ trợ cho endpoint này");
         return errorDetail;
     }
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneralException(Exception exception) {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
-        errorDetail.setProperty("access_denied_reason", "Internal server error occurred");
+        errorDetail.setProperty("access_denied_reason", "Đã xảy ra lỗi nội bộ trên hệ thống");
         return errorDetail;
     }
 }
